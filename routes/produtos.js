@@ -10,7 +10,31 @@ router.get('/', (req, res) => {
             })
         }
         conn.query(
-            'SELECT * FROM produto;',
+            'SELECT * FROM produto where quantidadeEstoque > 0;',
+            (error, resultado, fields) => {
+                if (error) {
+                    return res.status(500).send({
+                        error: error
+                    })
+                }
+                res.status(200).json({ message: 'Produtos recuperados com sucesso', data: resultado })
+            }
+        )
+    })
+})
+
+router.get('/categoria/:id', (req, res) =>{
+    const id = req.params.id
+    mysql.getConnection((error, conn) => {
+        if (error) {
+            return res.status(500).send({
+                error: error
+            })
+        }
+
+        conn.query(
+            'SELECT * FROM produto WHERE idCategoria = ? and quantidadeEstoque > 0;',
+            [id],
             (error, resultado, fields) => {
                 if (error) {
                     return res.status(500).send({
@@ -56,7 +80,7 @@ router.post('/', (req, res) => {
             })
         }
         conn.query(
-            'INSERT INTO produto (nome, descricao, preco, quantidadeEstoque, idCategoria, urlImagem) values (?,?,?,?,?)',
+            'INSERT INTO produto (nome, descricao, preco, quantidadeEstoque, idCategoria, urlImagem) values (?,?,?,?,?,?)',
             [req.body.nome, req.body.descricao, req.body.preco, req.body.quantidadeEstoque, req.body.idCategoria, req.body.urlImagem],
             (error, resultado, field) => {
                 conn.release();
